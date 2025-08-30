@@ -1,4 +1,5 @@
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
+use rayon::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(dead_code)]
@@ -23,23 +24,39 @@ impl Dithering {
 }
 
 fn simple(image: &DynamicImage) -> DynamicImage {
-    let mut new_image = image.clone();
-
-    for x in 0..image.width() {
-        for y in 0..image.height() {
-            let pixel = image.get_pixel(x, y);
-            let sum = pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16;
-            let avg = (sum / 3) as u8;
-
-            if avg > 127 {
-                new_image.put_pixel(x, y, Rgba([255, 255, 255, 255]));
+    let width = image.width();
+    let height = image.height();
+    
+    // Convert to RGBA8 for consistent pixel format
+    let rgba_image = image.to_rgba8();
+    let input_pixels = rgba_image.as_raw();
+    
+    // Process pixels in parallel chunks of 4 bytes (RGBA)
+    let output_pixels: Vec<u8> = input_pixels
+        .par_chunks_exact(4)
+        .flat_map(|chunk| {
+            let r = chunk[0] as u16;
+            let g = chunk[1] as u16;
+            let b = chunk[2] as u16;
+            let a = chunk[3];
+            
+            // Calculate luminance using perceptually accurate formula
+            // Using bit shifts for speed: (r * 77 + g * 150 + b * 29) >> 8
+            let luminance = ((r * 77 + g * 150 + b * 29) >> 8) as u8;
+            
+            if luminance > 127 {
+                [255u8, 255u8, 255u8, a]
             } else {
-                new_image.put_pixel(x, y, Rgba([0, 0, 0, 255]));
+                [0u8, 0u8, 0u8, a]
             }
-        }
-    }
-
-    new_image
+        })
+        .collect();
+    
+    // Create new image from raw pixel data
+    let output_image = image::RgbaImage::from_raw(width, height, output_pixels)
+        .expect("Failed to create image from raw data");
+    
+    DynamicImage::ImageRgba8(output_image)
 }
 
 fn ordered(image: &DynamicImage) -> DynamicImage {
