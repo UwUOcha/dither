@@ -39,7 +39,9 @@ fn main() {
 
         println!("writing image to disk");
 
-        dithered_image.save(path.unwrap()).expect("Failed to save image");
+        dithered_image
+            .save(path.unwrap())
+            .expect("Failed to save image");
 
         println!(
             "{} method done within {:.2?}",
