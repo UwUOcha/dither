@@ -1,4 +1,4 @@
-use image::{DynamicImage};
+use image::DynamicImage;
 use rayon::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
