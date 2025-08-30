@@ -1,6 +1,7 @@
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
 pub enum DitheringType {
     Simple,
     Ordered,
@@ -42,11 +43,11 @@ fn simple(image: &DynamicImage) -> DynamicImage {
 }
 
 fn ordered(image: &DynamicImage) -> DynamicImage {
-    // TODO: логика Ordered dithering
-    return image.clone();
+    // TODO: Ordered dithering logic
+    image.clone()
 }
 
 fn floyd_steinberg(image: &DynamicImage) -> DynamicImage {
-    // TODO: логика FS dithering
-    return image.clone();
+    // TODO: Floyd-Steinber dithering logic
+    image.clone()
 }
