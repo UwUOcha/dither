@@ -1,12 +1,12 @@
 use crate::dithering::DitheringType;
-use std::time::{Instant};
 use anyhow::anyhow;
+use std::time::Instant;
 
 mod dithering;
 
 fn main() {
     let program_instant = Instant::now();
-    let title =  format!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    let title = format!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 
     println!("{}", title);
 
@@ -19,28 +19,37 @@ fn main() {
             .set_title("Choose wallpaper")
             .pick_file()
             .ok_or_else(|| anyhow!("No file selected via GUI"));
-        
+
         let image = image::open(path.unwrap()).expect("Failed to open image");
 
-        println!("dithering image via {} method", dithering_type_to_string(method));
+        println!(
+            "dithering image via {} method",
+            dithering_type_to_string(method)
+        );
         let dither_simple = dithering::Dithering { image };
-        
+
         let dithered_image = dither_simple.apply(DitheringType::Simple);
-        
+
         let path = rfd::FileDialog::new()
             .set_title("Save image")
             .set_file_name("image.png")
-            .add_filter("png", &["png"])     
+            .add_filter("png", &["png"])
             .save_file()
             .ok_or_else(|| anyhow!("No file selected via save dialog"));
 
         println!("writing image to disk");
-        
-        let _ = dithered_image.save(path.unwrap()).expect("Failed to save image");
-        
-        println!("{} method done within {:.2?}", dithering_type_to_string(method), program_instant.elapsed());
+
+        let _ = dithered_image
+            .save(path.unwrap())
+            .expect("Failed to save image");
+
+        println!(
+            "{} method done within {:.2?}",
+            dithering_type_to_string(method),
+            program_instant.elapsed()
+        );
     }
-    
+
     println!("Done within {:.2?}", program_instant.elapsed());
 }
 

@@ -1,18 +1,18 @@
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub  enum DitheringType {
+pub enum DitheringType {
     Simple,
     Ordered,
     FloydSteinberg,
 }
 
 pub struct Dithering {
-    pub(crate) image: DynamicImage
+    pub(crate) image: DynamicImage,
 }
 
 impl Dithering {
-    pub  fn apply(&self, dithering_type: DitheringType) -> DynamicImage {
+    pub fn apply(&self, dithering_type: DitheringType) -> DynamicImage {
         match dithering_type {
             DitheringType::Simple => simple(&self.image),
             DitheringType::Ordered => ordered(&self.image),
